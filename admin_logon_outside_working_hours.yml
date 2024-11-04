@@ -1,0 +1,35 @@
+title: Admin Logon Outside Working Hours
+id: 1cf37ef4-621b-4d4c-b6f8-de4ae2c3a2a7
+status: experimental
+description: Detects administrator logins and related privileged events occurring outside of standard working hours.
+author: Kenan Konjić
+date: 2024-11-04
+logsource:
+  product: windows
+  service: security
+detection:
+  selection:
+    EventID:
+      - 4624  # Successful logon
+      - 4672  # Special privileges assigned to a new logon
+      - 4964  # Special groups have been assigned to a new logon
+    LogonType: 2  # Interactive logon
+    TargetUserName|contains: 
+      - 'admin'
+      - 'Administrator'
+      - 'root'
+      - 'superuser'
+  timeframe:
+    hour:
+      - '[0-6]'
+      - '[18-23]'
+  condition: selection
+fields:
+  - EventID
+  - TargetUserName
+  - IpAddress
+  - LogonType
+level: medium
+tags:
+  - attack.privilege_escalation
+  - attack.t1078
